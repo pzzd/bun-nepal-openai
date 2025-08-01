@@ -1,10 +1,9 @@
 import { serve } from "bun";
 import chatbot from "./chatbot/index.html";
 import BunLogger from "./logger.js";
+import OpenAI from "openai";
 
 const logger = BunLogger;
-
-
 
 const server = serve({
   port: 3000,
@@ -39,42 +38,38 @@ const server = serve({
         }
     },
 
-    "/api/ask-gemini": {
+    "/api/ask-openai": {
       async POST(req) {
-        console.log("Incoming call to /api/ask-gemini");
+        console.log("Incoming call to /api/ask-openai");
 
         const body = await req.json();
-        const API_URL = Bun.env.API_URL+Bun.env.API_KEY;
+        const userMessage = body.userMessage;
+        //const userMessage = "Write a one-sentence bedtime story about a unicorn.";
+        var modelReply;
 
-        const requestOptions = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: body.userMessage }],
-              },
-            ],
-          }),
-        };
+        const openai = new OpenAI({
+          apiKey: Bun.env.OPENAI_API_KEY,
+          organization: Bun.env.OPENAI_ORGANIZATION,
+          projectId: Bun.env.OPENAI_PROJECT_ID,
+        });
 
-        /* Below is the real API call to Gemini, but it gets overloaded */
-        const response = await fetch(API_URL, requestOptions);
-        const data = await response.json();
-        // TODO: log whole response?
+        const client = new OpenAI();
 
-//      //  if (!response.ok) throw new Error(data.error.message);
-        // TODO: log error?
-
-        // Get the API response text and update the message element
-        var modelReply = "";
-        if (response.ok) {
-          modelReply = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1");
-        } else {
-          modelReply = `Error: ${data.error.message}`;
+        try {
+          const response = await client.responses.create({
+              model: "gpt-4.1-nano", // see https://platform.openai.com/docs/models
+              input: userMessage
+          });
+          console.log(response.output_text);
+          modelReply = response.output_text
+        } catch (error) {
+          console.error("Error calling OpenAI API:", error);
+          modelReply = `Error: ${error}`;
         }
-        logger.log(`{ "userMessage": "${body.userMessage}", "model": "gemini", "modelReply": "${modelReply}" }`);
+
+
+
+        logger.log(`{ "userMessage": "${userMessage}", "model": "openai", "modelReply": "${modelReply}" }`);
 
         return Response.json({
           message: modelReply,
