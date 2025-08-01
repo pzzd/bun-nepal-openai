@@ -2,8 +2,11 @@
 
 ## Architecture
 - docker-compose.yml: for running on your laptop
-- react-app: React app goes here; external volume, but initialize with Bun from inside Docker container
-    - logs: Bun and React logs go here, Bun makes this directory.
+- app: All app and server code goes here; external volume, but initialize with Bun from inside Docker container
+    - chatbot: Nepal Coding chatbot UI in plain javascript
+    - index.ts: Bun server file
+- logs: Bun logs go here, external volume exposed inside Docker container
+- .env.development: dev environment vars; external file exposed inside Docker container
 
 ## Dev
 
@@ -20,10 +23,12 @@ Run `docker compose up -d`. Shell into the container, cd into react-app and run 
 
 ## Production
 
-Not sure about logging yet
+Not sure yet
+
 
 ## Resources
-- https://bun.sh
-- https://bun.com/guides/ecosystem/react
-- https://blog.stackademic.com/bun-1-0-logging-requests-to-an-output-file-50e54a7393c9
-- https://blog.bitsrc.io/react-error-handling-and-logging-best-practices-4444c57cd666
+- [Bun](https://bun.sh)
+- [Bun 1.0: Logging Requests to an Output File](https://blog.stackademic.com/bun-1-0-logging-requests-to-an-output-file-50e54a7393c9)
+- [OpenAI models](https://platform.openai.com/docs/models)
+- [OpenAI API reference](https://platform.openai.com/docs/api-reference)
+
