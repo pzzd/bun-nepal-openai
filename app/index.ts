@@ -54,11 +54,13 @@ const server = serve({
         });
 
         const client = new OpenAI();
-
         try {
           const response = await client.responses.create({
-              model: "gpt-4.1-nano", // see https://platform.openai.com/docs/models
-              input: userMessage
+              model: Bun.env.OPENAI_MODEL, // see https://platform.openai.com/docs/models
+              input: [
+                {"role": "system", "content": Bun.env.OPENAI_SYSTEM_MESSAGE},
+                {"role": "user", "content": userMessage},
+              ]
           });
           console.log(response.output_text);
           modelReply = response.output_text
